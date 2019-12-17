@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MediaPlanner</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link id="bsdp-css" href="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+    </environment>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">MediaPlanner</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        <div class="row">
+            @RenderBody()
+        </div>
+        <hr />
+        <footer>
+            <p>&copy; 2019 - MediaPlanner</p>
+        </footer>
+    </div>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+        <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/locales/bootstrap-datepicker.en-GB.min.js" charset="UTF-8"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+
+    @RenderSection("Scripts", required: false);
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        $('.datepicker').datepicker({
+            //format: 'mm/dd/yyyy',
+            startDate: '0d',
+            todayHighlight: true
+        });
+
+        $(".nav-tabs a").click(function () {
+            $(this).tab('show');
+        });
+        $('.nav-tabs a').on('shown.bs.tab', function (event) {
+            var x = $(event.target).text();
+            var y = $(event.relatedTarget).text();
+            $(".act span").text(x);
+            $(".prev span").text(y);
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    var data = [];
+    function validateDate(startDate, endDate) {
+        var start = new Date(startDate);
+        var end = new Date(endDate);
+        var currentDate = new Date(new Date().setDate(new Date().getDate() - 1));
+        if (end < start || start < currentDate) {
+            if (end < start)
+                alert(end < start);
+            if (start < currentDate)
+                alert(start < currentDate);
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateBudget(data, totalBudget) {
+        var sum = parseInt($('#txtBudget').val());
+        if (data.length > 0)
+            sum += data.reduce((a, b) => a + b.budget, 0);
+        if (sum > totalBudget) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function addRow(data) {
+        var startDate = $('#txtStartDate').val();
+        var endDate = $('#txtEndDate').val();
+        var budget = parseInt($('#txtBudget').val());
+        var supplierId = $('#drpdownSupplier :selected').val();
+        var supplierName = $('#drpdownSupplier :selected').text();
+        if (validateDate(startDate, endDate) && validateBudget(data, $('#Budget').val())) {
+            data.push({
+                startDate: startDate,
+                endDate: endDate,
+                budget: budget,
+                supplierId: supplierId,
+                supplierName: supplierName
+            });
+
+            generateRows(data);
+        }
+
+        else {
+            $('#adsErrorPanel').show();
+        }
+    }
+
+    function tabShift(id) {
+        $('#' + id).trigger('click');
+    }
+
+    //function editRow(data, key) {
+    //    $('#txtStartDate').val(data[key].startDate);
+    //    $('#txtEndDate').val(data[key].endDate);
+    //    $('#txtBudget').val(data[key].budget);
+    //    $("#drpdownSupplier option[value=' + data[key].supplierId + ']").attr("selected", "selected");
+    //    if (data != undefined && data != null && data.length > 0) {
+    //        data[key].budget = parseInt($('#txtBudget').val());
+    //        data[key].endDate = $('#txtEndDate').val();
+    //        data[key].startDate = $('#txtStartDate').val();
+    //        data[key].supplierId = $('#drpdownSupplier :selected').val();
+    //        data[key].supplierName = $('#drpdownSupplier :selected').text();
+    //        generateRows(data);
+    //    }
+    //}
+
+    function deleteRow(data, key) {
+        if (data != undefined && data != null && data.length > 0) {
+            data.splice(key, 1);
+            generateRows(data);
+        }
+    };
+
+    function generateRows(data) {
+        $('#tblAdvertisement tbody').html('');
+        data.forEach(function (value, key, data) {
+            var template =
+                '<tr id = "row_' + key + '"><th scope="row"><input type="hidden" id="CampaignDetails_' + key + '_SupplierId" name="CampaignDetails[' + key + '].SupplierId" value="' + value.supplierId + '"/><label>' + value.supplierName + '</label></th><td><input type="hidden" id="CampaignDetails_' + key + '_StartDate" name="CampaignDetails[' + key + '].StartDate" value="' + value.startDate + '"/><label>' + value.startDate + '</label></td><td><input type="hidden" id="CampaignDetails_' + key + '_EndDate" name="CampaignDetails[' + key + '].EndDate" value="' + value.endDate + '"/><label>' + value.endDate + '</label></td><td><input type="hidden" id="CampaignDetails_' + key + '_Budget" name="CampaignDetails[' + key + '].Budget" value="' + value.budget + '"/><label>' + value.budget + '</label></td><td><button type="button" onclick="save(\'DELETE\', ' + key + ')">DELETE</button></td><tr>';
+
+            $(template).appendTo($('#tblAdvertisement tbody'));
+        });
+    }
+
+    function save(action, id = 0) {
+        switch (action) {
+            case 'ADD':
+                addRow(data);
+                break;
+            //case 'EDIT':
+            //    editRow(data, id);
+            //    break;
+            case 'DELETE':
+                deleteRow(data, id);
+                break;
+        }
+
+        $('#txtStartDate').val('');
+        $('#txtEndDate').val('');
+        $('#txtBudget').val('');
+        $('#drpdownSupplier :selected').val();
+        $('#drpdownSupplier :selected').text();
+        $('.close').trigger('click');
+    }
+
+    function validateCampaign(event) {
+        console.log(event);
+        alert('campaign');
+        //event.stopPropagation();
+        return false;
+    }
+
+    //function validateChannel() {
+    //    alert('clicked');
+    //    return false;
+    //}
+
+    //function validateAds() {
+    //    alert('clicked');
+    //    return false;
+    //}
+
+</script>

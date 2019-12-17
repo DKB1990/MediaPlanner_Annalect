@@ -1,0 +1,177 @@
+﻿@model CampaignModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@using (Html.BeginForm("Save", "Campaign", FormMethod.Post))
+{
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="active"><a id="tab_campaign" href="#campaign" onclick="validateCampaign(event);">Campaign</a></li>
+            <li><a id="tab_channel" href="#mediaChannel">Media Channel</a></li>
+            <li><a id="tab_ad" href="#advertisement">Ad Management</a></li>
+            <li><a id="tab_preview" href="#preview">Preview</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div id="campaign" class="tab-pane fade in active">
+            <div class="form-group">
+                <div id="campaignErrorPanel" hidden>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="title">Title</label>
+                        @Html.TextBoxFor(model => model.Title, new { @class = "form-control", @maxlength = "50" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="ClientId">Client</label>
+                        @Html.DropDownListFor(x => x.ClientId, Model.Clients, "Select", new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-6">
+                        <!-- Market (Country) -->
+                        <div class="form-group">
+                            <label for="CountryId">Market</label>
+                            @Html.DropDownListFor(x => x.CountryId, Model.Countries, "Select", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="StartDate">Start Date</label>
+                        <div class="input-group date datetimepicker">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control datepicker" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="EndDate">End Date</label>
+                        <div class="input-group date datetimepicker">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            @Html.TextBoxFor(model => model.EndDate, new { @class = "form-control datepicker" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="budget">Budget</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-usd"></span>
+                            </span>
+                            @Html.TextBoxFor(model => model.Budget, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <a href="#mediaChannel" onclick="tabShift('tab_channel')">Next</a>
+            </div>
+        </div>
+
+        <div id="mediaChannel" class="tab-pane fade">
+            <div class="form-group">
+                <div id="channelErrorPanel" hidden>
+                </div>
+                <label for="channels">Media Channel</label>
+                @Html.DropDownListFor(x => x.ChannelIds, Model.Channels, new { @class = "form-control", multiple = "multiple" })
+            </div>
+            <div class="form-group">
+                <a href="#campaign" onclick="tabShift('tab_campaign')">Back</a>
+                <a href="#advertisement" onclick="tabShift('tab_ad')">Next</a>
+            </div>
+        </div>
+        <div id="advertisement" class="tab-pane fade">
+            <div class="form-group">
+                <div id="adsErrorPanel" hidden>
+                </div>
+                <!-- Button trigger modal -->
+                <table id="tblAdvertisement" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Supplier</th>
+                            <th scope="col">Start Date</th>
+                            <th scope="col">End Date</th>
+                            <th scope="col">Budget</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#campaignDetailModal">Add</button>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="campaignDetailModal" tabindex="-1" role="dialog" aria-labelledby="campaignDetailModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="campaignDetailModalLabel">Campaign</h3>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="StartDate">Start Date</label>
+                                        <div class="input-group date datetimepicker">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                            <input type="text" id="txtStartDate" class="form-control datepicker" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="StartDate">End Date</label>
+                                        <div class="input-group date datetimepicker">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                            <input type="text" id="txtEndDate" class="form-control datepicker" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="Supplier">Supplier</label>
+                                        @Html.DropDownList("drpdownSupplier", Model.Suppliers, "Select", new { @class = "form-control" })
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="budget">Budget</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-usd"></span>
+                                            </span>
+                                            <input type="text" maxlength="10" id="txtBudget" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="save('ADD');">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <a href="#mediaChannel" onclick="tabShift('tab_channel')">Back</a>
+                <a href="#preview" onclick="tabShift('tab_preview')">Next</a>
+            </div>
+        </div>
+        <div id="preview" class="tab-pane fade">
+            <h3>Preview</h3>
+            <a href="#advertisement" onclick="tabShift('tab_ad')">Back</a>
+            <input type="submit" value="Submit" />
+        </div>
+    </div>
+}
